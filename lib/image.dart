@@ -67,9 +67,9 @@ class _HtmlImageWidgetState extends State<HtmlImageWidget> {
 
   /// Toggles the fullscreen mode of the Image.
   ///
-  /// If the Image is currently in fullscreen mode, this method will exit
+  /// If the Image is currently in fullscreen mode, this method will exit-
   /// fullscreen mode. If the image is not in fullscreen mode, this method
-  /// will request fullscreen mode for the Image.
+  /// will request fullscreen mode for the Image to veiw.
 
   void _toggleFullscreen() {
     final doc = html.document;

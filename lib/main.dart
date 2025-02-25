@@ -2,12 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:image_viewer/image.dart';
 import 'dart:html' as html;
 
-/// The entry point of the application.
 void main() {
   runApp(const MyApp());
 }
 
-/// The root widget of the application.
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
 
@@ -17,7 +15,7 @@ class MyApp extends StatelessWidget {
   }
 }
 
-/// A widget displaying the home page with an image and bottom sheet actions.
+/// Home Page with an image and bottom sheet actions.
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
 
@@ -34,7 +32,7 @@ class _HomePageState extends State<HomePage> {
     super.dispose();
   }
 
-  /// Shows a bottom sheet with fullscreen management actions.
+  /// Shows a bottom sheet with fullscreen and exist-fullscreen options.
   ///
   /// The background is dimmed and the sheet can be dismissed by tapping outside.
   void _showMenuSheet(BuildContext context) {
@@ -70,6 +68,7 @@ class _HomePageState extends State<HomePage> {
   }
 
   /// Sets fullscreen mode based on the [enable] parameter.
+  /// Use [enable] true to enter fullscreen, false to exit fullscreen.
   void _setFullscreen({required bool enable}) {
     if (enable) {
       html.document.documentElement?.requestFullscreen();
