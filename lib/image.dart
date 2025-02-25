@@ -1,19 +1,12 @@
 import 'dart:developer';
 import 'dart:html' as html;
-import 'dart:ui_web';
-
+import 'dart:ui_web' as ui;
 import 'package:flutter/material.dart';
 
-/// Displays an HTML `<img>` element with fullscreen toggle on double-click.
-///
-/// Uses [HtmlElementView] to embed a DOM element, registering a unique
-/// factory via [platformViewRegistry].  Image scales to container,
-/// maintaining aspect ratio.
+/// Displays an HTML image element with fullscreen toggle on double-click.
 class HtmlImageWidget extends StatefulWidget {
-  /// Creates an [HtmlImageWidget] to display an image from [imageUrl].
   const HtmlImageWidget({super.key, required this.imageUrl});
 
-  /// The URL of the image to display.
   final String imageUrl;
 
   @override
@@ -22,20 +15,24 @@ class HtmlImageWidget extends StatefulWidget {
 
 class _HtmlImageWidgetState extends State<HtmlImageWidget> {
   late final String _viewType;
-  late final html.DivElement _container;
   late final html.ImageElement _image;
 
   @override
   void initState() {
     super.initState();
-    _viewType = 'html_image_${DateTime.now().millisecondsSinceEpoch}_${widget.imageUrl.hashCode}';
+    _viewType = _generateViewType();
+    _registerViewFactory();
+  }
 
-    platformViewRegistry.registerViewFactory(_viewType, (int viewId) {
-      _container =
+  /// Returns a unique string used as the HTML view type for embedding the image.
+  String _generateViewType() =>
+      'html_image_${DateTime.now().millisecondsSinceEpoch}_${widget.imageUrl.hashCode}';
+
+  void _registerViewFactory() {
+    ui.platformViewRegistry.registerViewFactory(_viewType, (int viewId) {
+      final container =
           html.DivElement()
             ..style.display = 'flex'
-            ..style.justifyContent = 'center'
-            ..style.alignItems = 'center'
             ..style.width = '100%'
             ..style.height = '100%';
 
@@ -46,12 +43,12 @@ class _HtmlImageWidgetState extends State<HtmlImageWidget> {
             ..style.height = '100%'
             ..style.objectFit = 'contain'
             ..onDoubleClick.listen((_) => _toggleFullscreen())
-            ..onError.listen((_) {
-              log('Failed to load image from URL: ${widget.imageUrl}');
-            });
+            ..onError.listen(
+              (_) => log('Image load failed: ${widget.imageUrl}'),
+            );
 
-      _container.append(_image);
-      return _container;
+      container.append(_image);
+      return container;
     });
   }
 
@@ -60,19 +57,26 @@ class _HtmlImageWidgetState extends State<HtmlImageWidget> {
     super.didUpdateWidget(oldWidget);
     if (oldWidget.imageUrl != widget.imageUrl) {
       _image.src = widget.imageUrl;
-      log('Updating image source to: ${widget.imageUrl}');
     }
   }
 
   @override
-  Widget build(BuildContext context) => HtmlElementView(viewType: _viewType);
+  Widget build(BuildContext context) {
+    return HtmlElementView(viewType: _viewType);
+  }
 
-  /// Toggles fullscreen mode using JavaScript interop.
+  /// Toggles the fullscreen mode of the Image.
+  ///
+  /// If the Image is currently in fullscreen mode, this method will exit
+  /// fullscreen mode. If the image is not in fullscreen mode, this method
+  /// will request fullscreen mode for the Image.
+
   void _toggleFullscreen() {
-    if (html.document.fullscreenElement != null) {
-      html.document.exitFullscreen();
+    final doc = html.document;
+    if (doc.fullscreenElement != null) {
+      doc.exitFullscreen();
     } else {
-      html.document.documentElement?.requestFullscreen();
+      doc.documentElement?.requestFullscreen();
     }
   }
 }
